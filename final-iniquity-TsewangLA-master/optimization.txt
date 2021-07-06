@@ -1,0 +1,51 @@
+Name: Tsewang Thilly
+Optimization: Common sub-expression elimination
+Response:
+
+Optimization 
+
+Common sub-expression elimination
+
+Compiler eliminate common sub expression if it would result in faster computation. For instance computing  x = a + b, then y = a + b would be redundant and inefficient. In such cases compiler computes a + b once and replace the common sub expression a + b with a temporary variable that hold the result of a + b. 
+
+Even though, common sub expression can be located by traversing the program. However, sometimes searching for common sub expressions and eliminating them can be more costly than running the program without doing any optimization. Therefore key idea behind my way of optimization is to selectively find common sub-expression.
+
+In shakedown such optimization can be achieved through having individual function for each type of expression (let-e, app-e, ..) to handle the elimination of common subexpressions. 
+
+For example, let-e expression will have a function that is specifically adapted to find common sub expression in let-e. And unlike before, there will be a new environment for those functions to stores common sub expression, which we will later eliminate. 
+
+(define (Compile-let-e-common-sub-expression 
+                Binding -> (find the common sub expression)
+                Sub-expression-env -> (store them in this environment) 
+               C-env)
+
+Returns (list of bindings that holds common sub expressions)
+)
+
+To be more specific, let's begin with eliminating common sub expression in let-e expression. 
+
+Let-e expression has a list of bindings and and a body. Finding common sub expression in binding would be easy. Therefore, we will ignore the body as it proves to be much more difficult. To find a common sub expression in bindings all we have to do check if one definition is a subset of an another. Upon finding common-sub-expressions we will store those and assign them to a “gensym” generated variable, and use it replace where those sub-expressions that are present in the epxression. 
+
+Finally, we will create a new let-e expression where previous let-e will become the body, and all those new variable that holds the common subexpression will become the bindings for the new let-e. 
+
+(Let-e (list (bindings symbol (holds common subexpression)))) 
+new body = (let-e bindings body) #old let-e will replaced common sub expression with this
+                                                        temporary variable. 
+)
+
+Now that replaced  the common sub expression, we need a new compile-let-e that compiles already replaced common-sub-expression expression. 
+
+Letr-e will be same as finding common sub expression in let-e expression, with minor differences.  
+
+Prim-e with two expression, we can check if two expression have common sub expression. Like before there will be a function that check if there are any common sub expression. And like before prim-e expressions will become he body of the new let-e expression that binding that hold the common sub expression as definition. 
+
+Like prim-e expression if-e’s true expression and false expression, we can check if there are any common sub expressions. Which will be very likely as most of the time true and false evaluated same type of expression, with minor differences. 
+
+Ex- if (person == female) (x = y + 9) (x = y + 1)
+
+For App-e expression we can find common sub expression in similar manner. Going through all the arguments and finding common sub expression and use let-e to define those common sub expression as binding and set its body to the app-e call, after replacing the common sub expression within the argument to their “gensym” variable that hold the result. 
+
+Although we can find common sub expression and define them as bindings of let-e expression,  process of finding them can take polynomial time, I believe using hash can reduce it to linear complexity. Where hash will store the common sub expression , and which and where in the expression they lies, so that replacing them would miles easier. 
+
+I believe having a linear complexity to find common sub expressions and replacing them, and not choosing to do it would be unwise. Such optimization not only saves memory but also time. Therefore, I highly recommend elimination of common sub expression when writing a new programming language.
+
